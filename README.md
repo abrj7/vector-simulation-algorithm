@@ -1,10 +1,11 @@
 # Sun Analemma – Reflection Simulation
 Based on the following [research paper](https://drive.google.com/file/d/18Ge1nyZpSrt2elqEW2IscvNKPeJti0cU/view) authored by me.
+
 This repository contains a Python implementation of the **Sun Analemma reflection model**, which simulates how sunlight reflects off the **concave glass façade** of 20 Fenchurch Street (the “Walkie-Talkie”) at various times of day. The program uses the Sun’s azimuth and altitude angles to calculate where the incoming solar rays strike the building and how they reflect onto the ground.
 
 ---
 
-## 🧭 Overview
+## Overview
 
 Given:
 - The **Sun’s azimuth** and **altitude** (in degrees)
@@ -17,63 +18,84 @@ the script:
 5. Optionally finds where that reflected ray hits the ground (`y = 0`).
 
 ---
-
-## 📐 Mathematical Model
+## Mathematical Model
 
 ### 1. Facade Geometry
+
 The façade is modeled as a 3D paraboloid:
-\[
-x = 0.0022(y^2 + z^2) - 6.22
-\]
+
+```
+x = 0.0022(y² + z²) - 6.22
+```
 
 This represents the building’s concave surface with curvature coefficients derived from real façade measurements.
 
+---
+
 ### 2. Incident Ray
-Given the Sun’s azimuth (β) and altitude (α):
-\[
-\begin{aligned}
-d_x &= \cos(\beta)\cos(\alpha) \\
-d_y &= \cos(\beta)\sin(\alpha) \\
-d_z &= \sin(\beta)
-\end{aligned}
-\]
+
+Given the Sun’s azimuth **β** and altitude **α**:
+
+```
+dₓ = cos(β) * cos(α)
+d_y = cos(β) * sin(α)
+d_z = sin(β)
+```
 
 The incident ray is parameterized as:
-\[
-(x, y, z) = (x_0, y_0, z_0) + \lambda(d_x, d_y, d_z)
-\]
 
-### 3. Intersection
-Plugging this line into the façade equation yields a **quadratic** in λ:
-\[
-a\lambda^2 + b\lambda + c = 0
-\]
-where
-\[
-\begin{aligned}
-a &= 0.0022(d_y^2 + d_z^2) \\
-b &= 0.0044(y_0 d_y + z_0 d_z) - d_x \\
-c &= 0.0022(y_0^2 + z_0^2) - x_0 - 6.22
-\end{aligned}
-\]
-
-The script solves this quadratic and selects the smallest **positive** real root (the physical intersection).
-
-### 4. Surface Normal
-The surface normal is derived from the gradient of the façade function:
-\[
-\nabla F = \langle 1, -0.0044y, -0.0044z \rangle
-\]
-
-### 5. Reflection
-The reflection vector is computed by:
-\[
-\mathbf{R} = \mathbf{D} - 2\frac{\mathbf{D}\cdot\mathbf{N}}{\|\mathbf{N}\|^2}\mathbf{N}
-\]
+```
+(x, y, z) = (x₀, y₀, z₀) + λ(dₓ, d_y, d_z)
+```
 
 ---
 
-## ⚙️ Usage
+### 3. Intersection
+
+Plugging this line into the façade equation yields a **quadratic in λ**:
+
+```
+aλ² + bλ + c = 0
+```
+
+where:
+
+```
+a = 0.0022(d_y² + d_z²)
+b = 0.0044(y₀d_y + z₀d_z) - dₓ
+c = 0.0022(y₀² + z₀²) - x₀ - 6.22
+```
+
+The script solves this quadratic and selects the smallest **positive real root** (the physical intersection).
+
+---
+
+### 4. Surface Normal
+
+The surface normal is derived from the gradient of the façade function:
+
+```
+∇F = ⟨1, -0.0044y, -0.0044z⟩
+```
+
+---
+
+### 5. Reflection
+
+The reflection vector is computed using the **vector law of reflection**:
+
+```
+R = D - 2 * ((D · N) / |N|²) * N
+```
+
+where:
+- `D` = incident direction vector  
+- `N` = surface normal vector  
+- `R` = reflected direction vector
+```
+---
+
+## Usage
 
 Run in any Python 3 environment:
 
@@ -105,16 +127,17 @@ Ground hit (y=0): x=51.06, y=0, z=0.84
 
 ---
 
-## 🪞 Physical Interpretation
+## Physical Interpretation
 
 - The **intersection point** is where the Sun’s ray hits the curved façade.
 - The **reflected direction** indicates where the sunlight is directed after reflection.
 - The **ground hit** shows where that reflection would appear on the street.
 - 1 unit = 4 m (scaling factor used in the original analysis).
+- See research paper for a visualization of these cordinates
 
 ---
 
-## 🧮 Full Source Code
+## Full Source Code
 
 ```python
 # sun_analemma_reflection.py
@@ -189,7 +212,7 @@ if __name__ == "__main__":
 
 ---
 
-## 📊 Example Application
+## Example Application
 
 Use this script to:
 - Generate daily reflection coordinates for a range of azimuth/altitude pairs.
@@ -198,7 +221,7 @@ Use this script to:
 
 ---
 
-## 🧠 Notes
+## Notes
 - Uses purely geometric optics (no atmospheric effects).
 - The building’s curvature parameters (0.0022, 6.22) were fitted from façade data.
 - Scaling factor: 1 unit = 4 m.
